@@ -12,23 +12,13 @@
 import sys
 import os
 import heapq
-from timeit import timeit
 
-
-class MyClass:
-    def __init__(self):
-        super().__init__()
-    # end __init__
-# end class MyClass
 
 dir_heap = []
 
 def get_dir_size(d_name, depth=0):
     size = 0
     files = ""
-
-    # if not os.access(d_name, os.R_OK):
-    #     return size
 
     try:
         for entry in os.scandir(d_name):
@@ -48,9 +38,10 @@ def get_dir_size(d_name, depth=0):
     return size
 # end get_dir_size
 
+
 def main(script, *script_args):
     print( "{} starting with args {}".format(script, script_args) )
-    print( "Current system:\n{} - {} - {} - {} - {}\n".format( *os.uname() ) )
+    # print( "Current system:\n{} - {} - {} - {} - {}\n".format( *os.uname() ) )
 
     print( "Running python version:\n{}\n".format( sys.version ) )
 
@@ -62,7 +53,8 @@ def main(script, *script_args):
     while dir_heap:
         d = heapq.heappop(dir_heap)
         print( "{:12d}\t{}".format(*d) )
-    print( "Total: {:d}".format(size) )
+
+    print( "\nTotal: {:d}, {:.3f} KB, {:.3f} MB, {:.3f} GB".format(size, size/1024, size/(1024**2), size/(1024**3)) )
 # end main
 
 
