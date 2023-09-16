@@ -17,6 +17,7 @@ from timeit import timeit
 
 def get_dir_size(d_name, depth=0, dir_heap=[]):
     size = 0
+    blks = 0
     files = ""
 
     # if not os.access(d_name, os.R_OK):
@@ -28,17 +29,20 @@ def get_dir_size(d_name, depth=0, dir_heap=[]):
                 next
             elif entry.is_file():
                 size += entry.stat().st_size
+                blks += entry.stat().st_blocks
+                print("blocksize {}".format(entry.stat().st_blksize))
             elif entry.is_dir():
-                sub_size, dir_heap = get_dir_size(entry.path, depth=depth+1, dir_heap=dir_heap)
+                sub_size, sub_blks, dir_heap = get_dir_size(entry.path, depth=depth+1, dir_heap=dir_heap)
                 size += sub_size
+                blks += sub_blks
         # end for
     except Exception as e:
         print( "*** Unable to access {} - {}".format( d_name, e), file=sys.stderr )
     # end try/except
 
     # print( "{:12d}\t{}".format(size, d_name) )
-    heapq.heappush(dir_heap, (size, d_name))
-    return size, dir_heap
+    heapq.heappush(dir_heap, (size, blks, d_name))
+    return size, blks, dir_heap
 # end get_dir_size
 
 def main(script, *script_args):
@@ -50,12 +54,12 @@ def main(script, *script_args):
     # print( 'CWD is %s'%(os.getcwd()) )
     print( "CWD is {}\n".format(os.getcwd()) )
 
-    size, dir_heap = get_dir_size(os.getcwd())
+    size, blks, dir_heap = get_dir_size(os.getcwd())
 
     while dir_heap:
         d = heapq.heappop(dir_heap)
-        print( "{:12d}\t{}".format(*d) )
-    print( "Total: {:d}".format(size) )
+        print( "{:12d}\t{:12d}\t{}".format(*d) )
+    print( "Total: {:d} bytes, {:d} blocks".format(size, blks) )
 # end main
 
 
